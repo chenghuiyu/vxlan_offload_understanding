@@ -3,7 +3,8 @@
 标签（空格分隔）： offload
 
 ---
-# **特别说明：由于目前实际生产环境的网卡不具备VXLAN的offload功能，所以无法进行对比性能测试，该验证部分主要是对不启动VXLAN offload功能的方案进行性能测试，后续如果环境满足再进行对比分析验证。**
+# **特别说明：由于目前实际生产环境的网卡不具备VXLAN的offload功能，所以无法进行对比性能测试，该验证部分主要是对不启动VXLAN offload功能的方案进行性能测试，
+后续如果环境满足再进行对比分析验证。**
 
 
 ## **1 测试环境介绍**
@@ -89,7 +90,9 @@ busy-poll: off [fixed]
 可以看到启动VXLAN offload功能的tx-udp_tnl-segmentation带有[fixed]，意味这VXLAN的offload功能不可用，那就先默认该功能关闭测试一下目前状态的性能如何。
 
 验证测试：
-Netperf主要用来获取client端和server端的throughput和CPU的利用率，测试性能也主要集中在这两个方面，该测试内容主要是用于测试连接网桥的eth网卡的VXLAN offload功能（由于不可修改，只能先测下默认关闭状态的性能）
+
+Netperf主要用来获取client端和server端的throughput和CPU的利用率，测试性能也主要集中在这两个方面，该测试内容主要是用于测试连接网桥的eth网卡的VXLAN offload功
+能（由于不可修改，只能先测下默认关闭状态的性能）
 
 本次验证的shell测试脚本如下所示：
 
