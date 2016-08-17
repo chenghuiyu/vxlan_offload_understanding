@@ -186,10 +186,10 @@ neutron中的vxlan的offload主要在NIC中完成，利用NIC driver实现带有
 
 （3）patch-tun 接口，连接到 br-tun 网桥。
 
-    如图所示，如果br-int从qr-XXX进入的网包，就会打上VLAN tag为15，发送到br-tun上去，如果网包带有VLAN tag为15，则直接从qr-XXX口进到router服务中去。
+  如图所示，如果br-int从qr-XXX进入的网包，就会打上VLAN tag为15，发送到br-tun上去，如果网包带有VLAN tag为15，则直接从qr-XXX口进到router服务中去。
 主要通过br-ex网桥和public network进行通信，一个是挂载的物理接口上，如 ens160，网包将从这个接口发送到外部网络上。
 
-   另外一个是 qg-xxx 这样的接口，是连接到 router 服务的网络名字空间中，里面绑定一个路由器的外部 IP，作为 NAT 时候的地址，另外，网络中的 floating IP 也放在
+  另外一个是 qg-xxx 这样的接口，是连接到 router 服务的网络名字空间中，里面绑定一个路由器的外部 IP，作为 NAT 时候的地址，另外，网络中的 floating IP 也放在
 这个网络名字空间中。
 
 
