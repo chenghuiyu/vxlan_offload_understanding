@@ -3,8 +3,7 @@
 ---
 Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge，另外一种就是OVS场景下的应用，之所以考虑这两种场景主要从以下方面考虑：
 
-**（1）Linux bridge**：这里的主要是指openstack中单独使用Linux bridge agent，即Linux bridge+VXLAN的情况，OVS其实还存在一些稳定性的问题，比如Kernetl panics 
-1.10、ovs-switched segfaults 1.11、广播风暴和Data corruption 2.01等，这是社区里提及到的地方。这里主要考虑的是针对NIC VXLAN offload的操作方式的区别。
+**（1）Linux bridge**：这里的主要是指openstack中单独使用Linux bridge agent，即Linux bridge+VXLAN的情况，OVS其实还存在一些稳定性的问题，比如Kernetl panics 1.10、ovs-switched segfaults 1.11、广播风暴和Data corruption 2.01等，这是社区里提及到的地方。这里主要考虑的是针对NIC VXLAN offload的操作方式的区别。
 
 
 **（2）OVS**：这种情景就是使用OVS agent的情况，结合NIC VXLAN的offload进行具体的分析。
@@ -28,8 +27,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （2）Linux bridge收到tap设备的二层帧后交给与其连接的VXLAN interface；
 
-（3）VXLAN interface先对二层帧进行检查，看是否超过预先设定的值，如果超过大小就会进行分片处理，接着二层帧数据包会被Linux VXLAN kernel模块的注册的hook函数进
-行处理，扔给Linux VETP kernel模块；
+（3）VXLAN interface先对二层帧进行检查，看是否超过预先设定的值，如果超过大小就会进行分片处理，接着二层帧数据包会被Linux VXLAN kernel模块的注册的hook函数进行处理，扔给Linux VETP kernel模块；
 
 （4）Linux VETP kernel模块的vxlan_xmit函数先判断是否需要进行ARP广播，然后就会将二层数据帧封装成udp package，然后调用系统接口处理；
 
@@ -73,8 +71,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （2）Linux bridge收到tap设备的二层帧后交给与其连接的VXLAN interface；
 
-（3）VXLAN interface先对二层帧进行检查，看是否超过预先设定的值，如果超过大小就会进行分片处理，接着二层帧数据包会被Linux VXLAN kernel模块的注册的hook函数进
-行处理，扔给Linux VETP kernel模块；
+（3）VXLAN interface先对二层帧进行检查，看是否超过预先设定的值，如果超过大小就会进行分片处理，接着二层帧数据包会被Linux VXLAN kernel模块的注册的hook函数进行处理，扔给Linux VETP kernel模块；
 
 （4）Linux VETP kernel模块的vxlan_xmit函数先判断是否需要进行ARP广播，然后就会将二层数据帧封装成udp package，然后调用系统接口处理；
 
@@ -94,15 +91,13 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （2）Linux bridge接受tap设备的二层帧数据包，扔给启动VXLAN offload功能的网卡NIC；
 
-（3）NIC在满足预定大小的MTU条件下，直接对二层帧数据包进行VXLAN的offload处理，并把带有VXLAN header的数据包扔给leaf交换机，如果超过了MTU，先对网包进行分片再
-进行处理；
+（3）NIC在满足预定大小的MTU条件下，直接对二层帧数据包进行VXLAN的offload处理，并把带有VXLAN header的数据包扔给leaf交换机，如果超过了MTU，先对网包进行分片再进行处理；
 
 
 
 - **进入虚机的数据包**
 
-（1） 在计算节点，从leaf交换机进入虚机的数据包首先经过网卡NIC，在满足MTU的情况下，对带有VXLAN header的网包进行VXLAN的offload，如果网络包大小超过了MTU，那
-么NIC利用TSO或者USO对网包进行分片处理；
+（1） 在计算节点，从leaf交换机进入虚机的数据包首先经过网卡NIC，在满足MTU的情况下，对带有VXLAN header的网包进行VXLAN的offload，如果网络包大小超过了MTU，那么NIC利用TSO或者USO对网包进行分片处理；
 
 （2）经过NIC处理后的二层帧数据包直接扔给Linux bridge进行处理；
 
@@ -114,8 +109,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 - **发送到外网的数据包**
 
-（1） 在网络节点，发往外网的数据包首先从leaf交换机进入虚机的数据包首先经过网卡NIC，在满足MTU的情况下，对带有VXLAN header的网包进行VXLAN的offload，如果网络
-包大小超过了MTU，那么NIC利用TSO或者USO对网包进行分片处理；
+（1） 在网络节点，发往外网的数据包首先从leaf交换机进入虚机的数据包首先经过网卡NIC，在满足MTU的情况下，对带有VXLAN header的网包进行VXLAN的offload，如果网络包大小超过了MTU，那么NIC利用TSO或者USO对网包进行分片处理；
 
 （2）经过NIC处理后的二层帧数据包直接扔给Linux bridge进行处理；
 
@@ -129,15 +123,12 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （2）Linux bridge接受tap设备的二层帧数据包，扔给启动VXLAN offload功能的网卡NIC；
 
-（3）NIC在满足预定大小的MTU条件下，直接对二层帧数据包进行VXLAN的offload处理，并把带有VXLAN header的数据包扔给leaf交换机，如果超过了MTU，先对网包进行分片
-再进行处理；
+（3）NIC在满足预定大小的MTU条件下，直接对二层帧数据包进行VXLAN的offload处理，并把带有VXLAN header的数据包扔给leaf交换机，如果超过了MTU，先对网包进行分片再进行处理；
 
 
 ## **2.2 Neutron VXLAN +openVswitch中的NIC VXLAN offload**
 
-   在这种场景下也可以分为两种情况进行讨论，NIC不开启VXLAN offload和开启VXLAN offload，对于不开启VXLAN offload的情况，即为传统上neutron的VXLAN的实现方案，
-具体[参见这里](http://chyufly.github.io/blog/2016/07/11/understanding-neutron-vlan-vxlan/)，下面主要介绍NIC在开启VXLAN offload情况下的网络数据通信机制。也
-是将网包分为两个方向进行说明，一种是网络数据包从虚机发出，另外一种就是网络数据包从外面发送到虚机里面去。
+   在这种场景下也可以分为两种情况进行讨论，NIC不开启VXLAN offload和开启VXLAN offload，对于不开启VXLAN offload的情况，即为传统上neutron的VXLAN的实现方案，具体[参见这里](http://chyufly.github.io/blog/2016/07/11/understanding-neutron-vlan-vxlan/)，下面主要介绍NIC在开启VXLAN offload情况下的网络数据通信机制。也是将网包分为两个方向进行说明，一种是网络数据包从虚机发出，另外一种就是网络数据包从外面发送到虚机里面去。
 
 
 ### **计算节点**
@@ -147,8 +138,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
   在计算节点上，OVS的br-int主要进行vlan标签的设置和转发，而开启VXLAN offload功能的NIC主要用于vxlan标签的设置和转发流量。
 
   在OVS中，利用网桥br-int来对vlan和mac进行转发，作为一个二层交换机使用，主要的接口包含两类：linux bridge过来的qvo-xxx以及往外的patch-tun接口，连接到br-tun
-网桥。这样就可以通过qvo-xxx 接口上为每个经过的网络分配一个内部 vlan的tag，如果在同一个neutron网络里启动了多台虚机，那么它们的tag都是一样的，如果是在不同的
-网络，那么vlan tag就会不一样。
+网桥。这样就可以通过qvo-xxx 接口上为每个经过的网络分配一个内部 vlan的tag，如果在同一个neutron网络里启动了多台虚机，那么它们的tag都是一样的，如果是在不同的网络，那么vlan tag就会不一样。
 
 如下图所示，如果br-int从port号17进入的网包，就会打上VLAN tag为8，直接发送到NIC上去，如果网包带有VLAN tag为8，则直接从port口17出去。
 
@@ -186,18 +176,14 @@ neutron中的vxlan的offload主要在NIC中完成，利用NIC driver实现带有
 
 （3）patch-tun 接口，连接到 br-tun 网桥。
 
-  如图所示，如果br-int从qr-XXX进入的网包，就会打上VLAN tag为15，发送到br-tun上去，如果网包带有VLAN tag为15，则直接从qr-XXX口进到router服务中去。
-主要通过br-ex网桥和public network进行通信，一个是挂载的物理接口上，如 ens160，网包将从这个接口发送到外部网络上。
+  如图所示，如果br-int从qr-XXX进入的网包，就会打上VLAN tag为15，发送到br-tun上去，如果网包带有VLAN tag为15，则直接从qr-XXX口进到router服务中去。主要通过br-ex网桥和public network进行通信，一个是挂载的物理接口上，如 ens160，网包将从这个接口发送到外部网络上。
 
-  另外一个是 qg-xxx 这样的接口，是连接到 router 服务的网络名字空间中，里面绑定一个路由器的外部 IP，作为 NAT 时候的地址，另外，网络中的 floating IP 也放在
-这个网络名字空间中。
+  另外一个是 qg-xxx 这样的接口，是连接到 router 服务的网络名字空间中，里面绑定一个路由器的外部 IP，作为 NAT 时候的地址，另外，网络中的 floating IP 也放在这个网络名字空间中。
 
 
 
 #### **router和DHCP**
 
-   dhcp服务是通过dnsmasq进程（轻量级服务器，可以提供dns、dhcp、tftp等服务）来实现的，该进程绑定到dhcp名字空间中的br-int的接口上。neutron中的路由服务主要是
-提供跨子网间的网络通信，包括虚拟想访问外部网络等。路由服务主要利用namespace实现不同网络之间的隔离性。另外，router还可以实现tenant work和external network之
-间的网络连接，通过SNAT实现tenant network往external network的网络连通性（fixed IP），通过DNAT实现external network往tenant network的网络连通性（floating I
-P）。
+   dhcp服务是通过dnsmasq进程（轻量级服务器，可以提供dns、dhcp、tftp等服务）来实现的，该进程绑定到dhcp名字空间中的br-int的接口上。neutron中的路由服务主要
+提供跨子网间的网络通信，包括虚拟想访问外部网络等。路由服务主要利用namespace实现不同网络之间的隔离性。另外，router还可以实现tenant work和external network之间的网络连接，通过SNAT实现tenant network往external network的网络连通性（fixed IP），通过DNAT实现external network往tenant network的网络连通性（floating IP）。
 
