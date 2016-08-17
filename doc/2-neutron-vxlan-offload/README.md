@@ -14,10 +14,13 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 将这一场景分为不启动网卡的VXLAN offload和启动网卡的VXLAN offload两种情况，并对内部的实现机制的不同进行对比分析。
 
 ### **（一）网卡不开启VXLAN offload**
-![1](resources/1.PNG)
 
 
 #### **计算节点**
+
+
+![1](resources/LinuxBridgeOffVxlanCompute.png)
+
 
 从图上可以看出，网包在计算节点需要进行两个方面的考虑，从虚机内部出去的数据包以及进入虚机的数据包。
 
@@ -47,6 +50,10 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 
 #### **网络节点**
+
+
+![2](resources/LinuxBridgeOffVxlanNetwork.png)
+
 
 在网络节点转发的数据包也分为两个方向
 
@@ -78,10 +85,21 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 （5）系统函数利用udp sockegt发送出VXLAN封装后的数据包，直接扔给网卡，经过网卡发送到外面去
 
 
+#### **总体原理框图**
+
+
+![3](resources/LinuxBridgeOffVxlanAll.png)
+
+
 ### **（二）网卡开启VXLAN offload**
 
 
 #### **计算节点**
+
+
+![4](resources/LinuxBridgeOnVxlanCompute.png)
+ 
+
 
 从图上可以看出，网包在计算节点需要进行两个方面的考虑，从虚机内部出去的数据包以及进入虚机的数据包。
 
@@ -105,6 +123,10 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 #### **网络节点**
 
+
+![5](resources/LinuxBridgeOnVxlanNetwork.png)
+
+
 在网络节点转发的数据包也分为两个方向
 
 - **发送到外网的数据包**
@@ -126,12 +148,22 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 （3）NIC在满足预定大小的MTU条件下，直接对二层帧数据包进行VXLAN的offload处理，并把带有VXLAN header的数据包扔给leaf交换机，如果超过了MTU，先对网包进行分片再进行处理；
 
 
+#### **总体框图**
+
+![6](resources/LinuxBridgeOnVxlanAll.png)
+
+
+
 ## **2.2 Neutron VXLAN +openVswitch中的NIC VXLAN offload**
 
    在这种场景下也可以分为两种情况进行讨论，NIC不开启VXLAN offload和开启VXLAN offload，对于不开启VXLAN offload的情况，即为传统上neutron的VXLAN的实现方案，具体[参见这里](http://chyufly.github.io/blog/2016/07/11/understanding-neutron-vlan-vxlan/)，下面主要介绍NIC在开启VXLAN offload情况下的网络数据通信机制。也是将网包分为两个方向进行说明，一种是网络数据包从虚机发出，另外一种就是网络数据包从外面发送到虚机里面去。
 
 
 ### **计算节点**
+
+原理框图如下所示：
+
+![7](resources/OVSOnVxlanCompute.png)
 
 #### **Linux bridge和br-int**
 
@@ -152,6 +184,11 @@ neutron中的vxlan的offload主要在NIC中完成，利用NIC driver实现带有
 据扔到br-int上去；
 
 ### **网络节点**
+
+原理框图如下所示：
+
+![8](resources/OVSOnVxlanNetwork.png)
+
 
 在网络节点上，所部署的neutron服务主要包括DHCP服务和路由服务等，网桥主要包括OVS的br-int，Linux bridge和br-ex等。
 
@@ -186,4 +223,9 @@ neutron中的vxlan的offload主要在NIC中完成，利用NIC driver实现带有
 
    dhcp服务是通过dnsmasq进程（轻量级服务器，可以提供dns、dhcp、tftp等服务）来实现的，该进程绑定到dhcp名字空间中的br-int的接口上。neutron中的路由服务主要
 提供跨子网间的网络通信，包括虚拟想访问外部网络等。路由服务主要利用namespace实现不同网络之间的隔离性。另外，router还可以实现tenant work和external network之间的网络连接，通过SNAT实现tenant network往external network的网络连通性（fixed IP），通过DNAT实现external network往tenant network的网络连通性（floating IP）。
+
+
+#### **总体框图**
+
+![9](resources/OVSOnVxlanAll.png)
 

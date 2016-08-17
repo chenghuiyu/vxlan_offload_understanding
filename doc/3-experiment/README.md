@@ -21,6 +21,9 @@
 |VXLAN-to-VXLAN over bridge | client host -> linux bridge -> br-int -> eth1 -> leaf switch -> eth1 -> br-int -> linux bridge -> server host|   
 
 
+#### **整体原理框图**
+
+![1](resources/experience.png)
 
 ## **2 测试验证步骤**
 
