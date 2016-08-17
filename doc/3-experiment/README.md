@@ -97,9 +97,9 @@ Netperf主要用来获取client端和server端的throughput和CPU的利用率，
 
 本次验证的shell测试脚本如下所示：
 
-[TCP stream testing]()
+[TCP stream testing](https://github.com/chenghuiyu/VxLAN-offload-shell/blob/master/netperf_tcp_stream.sh)
 
-[UDP stream testing]()
+[UDP stream testing](https://github.com/chenghuiyu/VxLAN-offload-shell/blob/master/netperf_udp_stream.sh)
 
 ## **3.3 测试结果分析**
 

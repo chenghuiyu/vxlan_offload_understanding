@@ -42,6 +42,7 @@ Bytes）、TCP头（标准情况下20Bytes），TCP的MSS (Max Segment Size)大�
 ```
 ethtool -k ethX //这项命令可以列举出ethX的offloads以及当前的状态
 ```
+
 ```
 ethtool -K ethX tx-udp_tnl-segmentation [off|on] //可以开启或关闭Linux
 ```
