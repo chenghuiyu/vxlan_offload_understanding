@@ -36,7 +36,7 @@
   ```
   ethtool -K ethX tx-udp_tnl-segmentation [off|on] //可以开启或关闭Linux
   ```
-![1](resources/102.PNG)
+![1](resources/102.png)
 
 
   采用网卡VXLAN offload技术后，overlay情形下的虚拟网络性能也会得到大规模的提升。本质上来说，VXLAN的封装格式类似于一种l2vpn技术，即将二层以太网报文封装在udp报文里，从而跨越underlay L3网络，来实现不同的服务器或不同的数据中心间的互联。
@@ -45,8 +45,8 @@
 
   网卡的VXLAN offload主要对网卡的能力进行了增强，并与网卡驱动配合，使得网卡能够知晓VXLAN内部以太报文的位置，从而使得TSO、TCP checksum offload这些技术能够对内部的以太报文生效，从而提升TCP性能。
 
-![2](resources/101.PNG)
+![2](resources/101.png)
 
   目前部署虚拟网络主流采用VXALN技术，其封包、解包用CPU来实现，将会消耗很大的CPU等系统资源。VXLAN使用通用的x86进行封包、解包处理，其CPU资源占用会达到50%左右，可以考虑使用支持VXLAN offload功能的网卡来降低系统资源的消耗问题。目前来看，博通、Intel、mellanox和Qlogic等网卡厂商都支持VXLAN的卸载。尽管是不同厂商的产品，但业内已经有标准的VXLAN offload接口，无需改动代码即可启用这一功能，并不会增加代码层面的工作量。
 
-![3](resources/103.PNG)
+![3](resources/103.png)
