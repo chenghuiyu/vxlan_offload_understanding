@@ -25,8 +25,11 @@
 ## **2 测试验证步骤**
 
 Netperf工具主要用来产生客户端和服务端的TCP流量，它是测试网络的一个轻量级的用户进程，主要包括以下部分：
+
 Netperf---用户级进程，用来连接服务端并产生流量
+
 Netserver---用户级进程，用来监听个接受请求连接。
+
 *MTU的限制：VXLAN隧道在VM以太网帧中添加了50bytes，请确保发送数据包的网卡的MTU足够处理VXLAN的网络报文。
 
 
@@ -91,6 +94,7 @@ Netperf主要用来获取client端和server端的throughput和CPU的利用率，
 本次验证的shell测试脚本如下所示：
 
 [TCP stream testing]()
+
 [UDP stream testing]()
 
 ## **3 测试结果分析**
