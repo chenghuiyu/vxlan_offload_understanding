@@ -1,12 +1,10 @@
-# 实验验证
+# 三、 VXLAN offload性能验证
 
-标签（空格分隔）： offload
-
----
+--------
 # **特别说明：由于目前实际生产环境的网卡不具备VXLAN的offload功能，所以无法进行对比性能测试，该验证部分主要是对不启动VXLAN offload功能的方案进行性能测试，后续如果环境满足再进行对比分析验证。**
 
 
-## **1 测试环境介绍**
+## **3.1 测试环境介绍**
 
 | Client Node               | Server Node            | 
 | ------------------------  | -------------------    | 
@@ -25,7 +23,7 @@
 
 ![1](resources/experience.png)
 
-## **2 测试验证步骤**
+## **3.2 测试验证步骤**
 
 Netperf工具主要用来产生客户端和服务端的TCP流量，它是测试网络的一个轻量级的用户进程，主要包括以下部分：
 
@@ -102,7 +100,7 @@ Netperf主要用来获取client端和server端的throughput和CPU的利用率，
 
 [UDP stream testing]()
 
-## **3 测试结果分析**
+## **3.3 测试结果分析**
 
 
 netperf raw results(VXLAN offload Off)：
