@@ -1,4 +1,4 @@
-# 二、neutron中的VXLAN offload实现原理
+# 二、NIC的VXLAN offload和neutron结合的运行机制
 
 ---
 Neutron中使用网卡VXLAN的offload技术两种场景，一种是单独使用Linux bridge的情况，另外一种就是OVS场景下的应用，之所以考虑这两种场景主要从以下方面考虑：
