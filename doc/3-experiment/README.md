@@ -103,7 +103,7 @@ Netperf可以用来获取client端和server端的throughput和CPU的利用率，
 |4M                       |8K                                |--               |--               |--        |--          |
 |4M                       |32K                               |--               |--               |--        |--          |
 
-初步编写的shell测试脚本如下所示：
+相关shell测试脚本已列出：
 
 [TCP stream testing](https://github.com/chenghuiyu/VxLAN-offload-shell/blob/master/netperf_tcp_stream.sh)
 
