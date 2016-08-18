@@ -1,9 +1,9 @@
 # 二、neutron中的VXLAN offload实现原理
 
 ---
-Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge，另外一种就是OVS场景下的应用，之所以考虑这两种场景主要从以下方面考虑：
+Neutron中使用网卡VXLAN的offload技术两种场景，一种是单独使用Linux bridge的情况，另外一种就是OVS场景下的应用，之所以考虑这两种场景主要从以下方面考虑：
 
-**（1）Linux bridge**：这里的主要是指openstack中单独使用Linux bridge agent，即Linux bridge+VXLAN的情况，OVS其实还存在一些稳定性的问题，比如Kernetl panics 1.10、ovs-switched segfaults 1.11、广播风暴和Data corruption 2.01等，这是社区里提及到的地方。这里主要考虑的是针对NIC VXLAN offload的操作方式的区别。
+**（1）Linux bridge**：这里的主要是指openstack中单独使用Linux bridge agent，即Linux bridge+VXLAN的情况，社区里其实也提到过OVS一些稳定性的问题，比如Kernetl panics 1.10、ovs-switched segfaults 1.11、广播风暴和Data corruption 2.01等，而Linux bridge相对稳定一些，所以这种Linux bridge+VXLAN的场景在实际中也是经常用到的。
 
 
 **（2）OVS**：这种情景就是使用OVS agent的情况，结合NIC VXLAN的offload进行具体的分析。
@@ -22,23 +22,23 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 ![1](resources/LinuxBridgeOffVxlanCompute.png)
 
 
-从图上可以看出，网包在计算节点需要进行两个方面的考虑，从虚机内部出去的数据包以及进入虚机的数据包。
+从上图中可以看出，网包在计算节点有两个不同的流向，即从虚机内部出去的数据包以及进入虚机的数据包。
 
 - **虚机内部出去的数据包**
 
 （1）虚机发出的二层帧数据包首先经过tap设备发送到Linux bridge进行处理；
 
-（2）Linux bridge收到tap设备的二层帧后交给与其连接的VXLAN interface；
+（2）Linux bridge收到tap设备的二层帧后，首先进行security group的检查，如果满足预定安全组的设置，就交给与其连接的VXLAN interface；
 
-（3）VXLAN interface先对二层帧进行检查，看是否超过预先设定的值，如果超过大小就会进行分片处理，接着二层帧数据包会被Linux VXLAN kernel模块的注册的hook函数进行处理，扔给Linux VETP kernel模块；
+（3）VXLAN interface先对二层帧进行检查，看是否超过MTU预先设定的值，如果超过预置MTU的大小就会进行分片处理，接着二层帧数据包会被Linux VXLAN kernel模块的注册的hook函数进行处理，扔给Linux VETP kernel模块；
 
 （4）Linux VETP kernel模块的vxlan_xmit函数先判断是否需要进行ARP广播，然后就会将二层数据帧封装成udp package，然后调用系统接口处理；
 
-（5）系统函数利用udp sockegt发送出VXLAN封装后的数据包，直接扔给网卡，经过网卡发送到外面去。
+（5）系统函数利用udp sockegt发送出VXLAN封装后的数据包，直接扔给网卡NIC，经过NIC发送到外面去，当然也需要对MTU进行判断，如果超出大小就会进行分片处理。
 
 - **进入虚机的数据包**
 
-（1） 在计算节点，进入虚机的数据包首先经过网卡，在满足MTU的情况下，网卡将数据包交给UDP Socket进行处理，并给到Linux VTEP kernel里去；
+（1） 在计算节点，进入虚机的数据包首先经过网卡NIC，在满足MTU的情况下，网卡NIC将数据包交给UDP Socket进行处理，并给到Linux VTEP kernel里去；
 
 （2）Linux VXLAN kernel模块在udp协议栈上注册hook函数，该函数对接收到的数据帧做简单检查，再交给内核模块中专门处理VXLAN的函数vxlan_rcv；
 
@@ -46,7 +46,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （4）VXLAN interface需要重新计算MTU的大小，如果超过预定的设置后，就会对二层帧数据包进行分片，接着将帧数据扔给Linux bridge，进行正常的数据包的转发；
 
-（5）Linux bridge收到二层帧数据包后转发给桥上的tap设备，tap设备再将网包扔给所连接的虚机的tap接口，最终到达虚机。
+（5）Linux bridge收到二层帧数据包后，首先进行security group的检测，如果满足预先设定的安全组规则，就转发给桥上的tap设备，tap设备再将网包扔给所连接的虚机的tap接口，最终到达虚机。
 
 
 #### **网络节点**
@@ -60,7 +60,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 - **发送到外网的数据包**
 
-（1） 在网络节点，发往外网的数据包首先经过网卡，在满足预先设定的MTU的情况下，网卡将数据包交给UDP Socket进行处理，并给到Linux VTEP kernel里去；
+（1） 在网络节点，发往外网的数据包首先经过网卡NIC，在满足预先设定的MTU的情况下，网卡NIC将数据包交给UDP Socket进行处理，并给到Linux VTEP kernel里去；
 
 （2）Linux VXLAN kernel模块在udp协议栈上注册hook函数，该函数对接收到的数据帧做简单检查，再交给内核模块中专门处理VXLAN的函数vxlan_rcv；
 
@@ -82,7 +82,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （4）Linux VETP kernel模块的vxlan_xmit函数先判断是否需要进行ARP广播，然后就会将二层数据帧封装成udp package，然后调用系统接口处理；
 
-（5）系统函数利用udp sockegt发送出VXLAN封装后的数据包，直接扔给网卡，经过网卡发送到外面去
+（5）系统函数利用udp sockegt发送出VXLAN封装后的数据包，直接扔给网卡NIC，经过网卡NIC发送到外面去。
 
 
 #### **总体原理框图**
@@ -107,7 +107,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （1）虚机发出的二层帧数据包首先经过tap设备发送到Linux bridge进行处理；
 
-（2）Linux bridge接受tap设备的二层帧数据包，扔给启动VXLAN offload功能的网卡NIC；
+（2）Linux bridge接受tap设备的二层帧数据包，首先检测是否满足security group，如果满足安全组的规则，扔给启动VXLAN offload功能的网卡NIC；
 
 （3）NIC在满足预定大小的MTU条件下，直接对二层帧数据包进行VXLAN的offload处理，并把带有VXLAN header的数据包扔给leaf交换机，如果超过了MTU，先对网包进行分片再进行处理；
 
@@ -119,7 +119,7 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
 
 （2）经过NIC处理后的二层帧数据包直接扔给Linux bridge进行处理；
 
-（3）Linux bridge收到二层帧数据包后转发给桥上的tap设备，tap设备再将网包扔给所连接的虚机的tap接口，最终到达虚机。
+（3）Linux bridge收到二层帧数据包后，首先检测是否满足security group，如果满足安全组的规则，转发给桥上的tap设备，tap设备再将网包扔给所连接的虚机的tap接口，最终到达虚机。
 
 #### **网络节点**
 
@@ -172,7 +172,6 @@ Neutron中使用网卡VXLAN的offload技术两种场景，一种是Linux bridge�
   在OVS中，利用网桥br-int来对vlan和mac进行转发，作为一个二层交换机使用，主要的接口包含两类：linux bridge过来的qvo-xxx以及往外的patch-tun接口，连接到br-tun
 网桥。这样就可以通过qvo-xxx 接口上为每个经过的网络分配一个内部 vlan的tag，如果在同一个neutron网络里启动了多台虚机，那么它们的tag都是一样的，如果是在不同的网络，那么vlan tag就会不一样。
 
-如下图所示，如果br-int从port号17进入的网包，就会打上VLAN tag为8，直接发送到NIC上去，如果网包带有VLAN tag为8，则直接从port口17出去。
 
 #### **NIC的VXLAN offload**
 
@@ -205,13 +204,12 @@ neutron中的vxlan的offload主要在NIC中完成，利用NIC driver实现带有
 
 #### **Linux bridge和br-int**
 
-   在controller节点上，vlan tag的设置主要在br-int网桥上进行，作为一个正常的二层交换设备进行使用，只是根据vlan和mac进行数据包的转发。接口类型包括：
+   在网络节点上，vlan tag的设置主要在br-int网桥上进行，作为一个正常的二层交换设备进行使用，只是根据vlan和mac进行数据包的转发。接口类型包括：
 
 （1）tap-xxx，连接到网络 DHCP 服务的命名空间；
 
 （2）qr-xxx，连接到路由服务的命名空间；
 
-（3）patch-tun 接口，连接到 br-tun 网桥。
 
   如图所示，如果br-int从qr-XXX进入的网包，就会打上VLAN tag为15，发送到br-tun上去，如果网包带有VLAN tag为15，则直接从qr-XXX口进到router服务中去。主要通过br-ex网桥和public network进行通信，一个是挂载的物理接口上，如 ens160，网包将从这个接口发送到外部网络上。
 
