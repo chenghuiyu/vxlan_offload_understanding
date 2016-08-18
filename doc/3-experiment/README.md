@@ -7,16 +7,16 @@
 
 ## **3.1 测试环境介绍**
 
-| Client Node               | Server Node            | 
-| ------------------------  | -------------------    | 
-|  2 interl CPU v3 @2.50HZ  |2 interl CPU v3 @2.50HZ |
-|  256GB RAM                |  256GB RAM             |
-|NIC                        |  NIC                   |
-|CentOS 7                   | CentOS 7               |
+| Client Node               | Server Node                                                                                                  | 
+| ------------------------  | ----------------------------------------------------------------------------------------------------------   | 
+|  2 interl CPU v3 @2.50HZ  |2 interl CPU v3 @2.50HZ                                                                                       |
+|  256GB RAM                |  256GB RAM                                                                                                   |
+|NIC                        |  NIC                                                                                                         |
+|CentOS 7                   | CentOS 7                                                                                                     |
 
 
-| Traffic Flow Type         | Data Path   | 
-| --------------------------| ------------| 
+| Traffic Flow Type         | Data Path                                                                                                    | 
+| --------------------------| ----------------------------------------------------------------------------------------------------------   | 
 |VXLAN-to-VXLAN over bridge | client host -> linux bridge -> br-int -> eth1 -> leaf switch -> eth1 -> br-int -> linux bridge -> server host|   
 
 
