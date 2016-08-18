@@ -4,7 +4,6 @@
 
 ## 二、 neutron中VXLAN的offload技术的应用原理和场景介绍
 
-## 三、 VXLAN offload性能验证
+## 三、 VXLAN offload性能验证方案
 
-## 四、 总结以及思考
 
