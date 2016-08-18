@@ -31,7 +31,7 @@ Netserver---用户级进程，用来监听个接受请求连接。
 查看offload信息
 
 ```
-[yuchenghui@localhost vxlan-offload]$ ethtool -k ethX
+[root@node-1 vxlan-offload]$ ethtool -k ethX
 Features for eno16777736:
 rx-checksumming: off
 tx-checksumming: on
@@ -83,7 +83,7 @@ busy-poll: off [fixed]
 
 可以看到启动VXLAN offload功能的tx-udp_tnl-segmentation带有[fixed]，意味这VXLAN的offload功能不可用，目前该网卡并不支持VXLAN的offload功能。
 
-验证测试：
+### **验证测试：**
 
 Netperf可以用来获取client端和server端的throughput和CPU的利用率，网络的吞吐量，建立时间等方面，测试内容主要是用于测试eth网卡的VXLAN offload的性能，后续的测试项可以按照下面表格中的参数进行测试，分为两种情况，即**开启NIC的VXLAN offload功能**和**不开启NIC的VXLAN offload功能**。
 
@@ -103,7 +103,7 @@ Netperf可以用来获取client端和server端的throughput和CPU的利用率，
 |4M                       |8K                                |--               |--               |--        |--          |
 |4M                       |32K                               |--               |--               |--        |--          |
 
-相关shell测试脚本已列出：
+#### **相关shell测试脚本已列出：**
 
 [TCP stream testing](https://github.com/chenghuiyu/VxLAN-offload-shell/blob/master/netperf_tcp_stream.sh)
 
