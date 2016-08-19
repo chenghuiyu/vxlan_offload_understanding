@@ -1,5 +1,5 @@
 
-### neutron中的网卡VXLAN的offload技术研究报告
+### 网卡NIC的VXLAN offload技术研究报告
 
 ----------------------
 
