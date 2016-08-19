@@ -65,4 +65,4 @@ ethtool -K ethX tx-udp_tnl-segmentation [off|on] //可以开启或关闭Linux
 
 ![3](resources/103.png)
 
-***[图片来自青云SDN 2.0 NIC的VXLAN Offload的资源测试](http://www.testlab.com.cn/Index/article/id/1106.html)***
+***[图片来自青云SDN 2.0 NIC的VXLAN Offload的测试报告](http://www.testlab.com.cn/Index/article/id/1106.html)***
